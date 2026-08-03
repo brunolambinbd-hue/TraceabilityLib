@@ -1,0 +1,76 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.example.lib",
+    "module": "traceability",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.10.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.9.24"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "traceability-1.0.0.aar",
+          "url": "traceability-1.0.0.aar",
+          "size": 3464,
+          "sha512": "fb57238e3ae1223b22f9f273432231bc7b5cc5d843a94794ee7a1b9a9c2128e0dbdd13395979c5df4fcedae1fdfbb1ee0fc1e965ee2cf5b70417f957026aa8a6",
+          "sha256": "6a6b6dbdb3e009721676069b32ccb56eea31d77af35f6c97c54395e2b0b7853a",
+          "sha1": "f360aed3febb77a85f22a4e243115ecfae654437",
+          "md5": "fe7086fe99e38a80eef1613240b802a2"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.9.24"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "traceability-1.0.0.aar",
+          "url": "traceability-1.0.0.aar",
+          "size": 3464,
+          "sha512": "fb57238e3ae1223b22f9f273432231bc7b5cc5d843a94794ee7a1b9a9c2128e0dbdd13395979c5df4fcedae1fdfbb1ee0fc1e965ee2cf5b70417f957026aa8a6",
+          "sha256": "6a6b6dbdb3e009721676069b32ccb56eea31d77af35f6c97c54395e2b0b7853a",
+          "sha1": "f360aed3febb77a85f22a4e243115ecfae654437",
+          "md5": "fe7086fe99e38a80eef1613240b802a2"
+        }
+      ]
+    }
+  ]
+}
