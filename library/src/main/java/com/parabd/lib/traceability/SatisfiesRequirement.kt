@@ -1,6 +1,7 @@
-package com.example.imagecomparison
+package com.parabd.lib.traceability
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
 annotation class SatisfiesRequirement(val id: String)
+

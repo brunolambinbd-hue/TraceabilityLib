@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.traceability"
+    namespace = "com.parabd.lib.traceability"
     compileSdk = libs.versions.sdkCompile.get().toString().toInt()
 
     defaultConfig {
@@ -31,10 +31,12 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.example.lib"
+                groupId = "com.parabd.lib"
                 artifactId = "traceability"
                 version = "1.0.0"
             }
         }
     }
 }
+
+
