@@ -25,6 +25,9 @@ android {
         jvmTarget = libs.versions.javaVersion.get().toString()
     }
 }
+dependencies {
+    testImplementation(libs.junit.junit)
+}
 
 afterEvaluate {
     publishing {

@@ -42,6 +42,7 @@ robolectric = "4.14.1"
 uiautomator = "2.3.0"
 roomTesting = "2.6.1"
 json = "20231013"
+junitVersion = "4.12"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -89,6 +90,7 @@ arcore = { group = "com.google.ar", name = "core", version.ref = "arcore" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 json = { group = "org.json", name = "json", version.ref = "json" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitVersion" }
 
 
 [plugins]
