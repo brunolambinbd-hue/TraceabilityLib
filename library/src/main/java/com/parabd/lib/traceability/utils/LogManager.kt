@@ -34,7 +34,8 @@ object LogManager {
      */
     internal fun isLoggable(tag: String, level: Int): Boolean {
         val forced = forceLoggable
-        return forced ?: try {
+        if (forced != null) return forced
+        return try {
             Log.isLoggable(tag, level)
         } catch (_: Throwable) {
             true
@@ -101,7 +102,7 @@ object LogManager {
      * Unconditionally adds a breadcrumb to [BreadcrumbManager] and outputs to Logcat if loggable.
      *
      * @param tag The tag identifying the log source.
-     * @param message The error message to record.
+     * @param message The error message or prefix to record.
      * @param throwable Optional exception associated with the error.
      * @param marker The TDO marker prefix (defaults to [TraceConstants.RECOVERY]).
      */
@@ -111,16 +112,71 @@ object LogManager {
         throwable: Throwable? = null,
         marker: String = TraceConstants.RECOVERY,
     ) {
-        val fullMsg = if (throwable != null) "$message (${throwable.message})" else message
+        val fullMsg = if (throwable != null) {
+            val exMsg = throwable.message
+            if (exMsg != null && exMsg.isNotBlank() && message.contains(exMsg)) {
+                message
+            } else if (exMsg != null && exMsg.isNotBlank()) {
+                if (message.endsWith(" ") || message.endsWith(":")) {
+                    "$message$exMsg"
+                } else {
+                    "$message ($exMsg)"
+                }
+            } else {
+                message
+            }
+        } else {
+            message
+        }
+
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
         if (isLoggable(tag, Log.ERROR)) {
             try {
                 if (throwable != null) {
-                    Log.e(tag, "$marker $message", throwable)
+                    Log.e(tag, "$marker $fullMsg", throwable)
                 } else {
-                    Log.e(tag, "$marker $message")
+                    Log.e(tag, "$marker $fullMsg")
                 }
+            } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * Emits an ERROR level log for an exception with an explicit prefix, automatically extracting
+     * and formatting the throwable's message with [fallbackMessage] if blank.
+     *
+     * @param tag The tag identifying the log source.
+     * @param prefix The log prefix describing the operation (e.g. "Audit failed: ").
+     * @param throwable The exception instance.
+     * @param fallbackMessage Fallback message if throwable.message is null or blank.
+     * @param marker The TDO marker prefix (defaults to [TraceConstants.RECOVERY]).
+     */
+    fun e(
+        tag: String,
+        prefix: String,
+        throwable: Throwable,
+        fallbackMessage: String,
+        marker: String = TraceConstants.RECOVERY,
+    ) {
+        val raw = throwable.message
+        val detail = if (raw != null && raw.isNotBlank()) {
+            raw
+        } else {
+            fallbackMessage
+        }
+
+        val fullMsg = if (prefix.endsWith(" ") || prefix.endsWith(": ")) {
+            "$prefix$detail"
+        } else {
+            "$prefix: $detail"
+        }
+
+        BreadcrumbManager.addBreadcrumb(marker, fullMsg)
+
+        if (isLoggable(tag, Log.ERROR)) {
+            try {
+                Log.e(tag, "$marker $fullMsg", throwable)
             } catch (_: Throwable) {}
         }
     }
@@ -141,5 +197,38 @@ object LogManager {
                 Log.e(tag, "${TraceConstants.UNEXPECTED} $message")
             } catch (_: Throwable) {}
         }
+    }
+
+    /**
+     * Emits an UNEXPECTED anomaly log via [u] and immediately throws an [IllegalStateException].
+     *
+     * Useful for defensive programming where a structural anomaly must halt execution.
+     *
+     * @param tag The tag identifying the log source.
+     * @param message The message describing the anomaly.
+     * @param cause Optional underlying cause of the exception.
+     * @return Nothing, as this function always throws an exception.
+     * @throws IllegalStateException Always thrown with [message] and [cause].
+     */
+    fun throwU(tag: String, message: String, cause: Throwable? = null): Nothing {
+        u(tag, message)
+        throw IllegalStateException(message, cause)
+    }
+
+    /**
+     * Emits an ERROR level log via [e] and rethrows the provided exception.
+     *
+     * Useful for logging an error right before propagating the exception up the call stack.
+     *
+     * @param T The type of throwable to throw.
+     * @param tag The tag identifying the log source.
+     * @param message The error message to record.
+     * @param exception The exception to log and throw.
+     * @return Nothing, as this function always throws [exception].
+     * @throws Throwable Always rethrows [exception].
+     */
+    fun <T : Throwable> throwE(tag: String, message: String, exception: T): Nothing {
+        e(tag, message, exception)
+        throw exception
     }
 }
