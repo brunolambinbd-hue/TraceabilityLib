@@ -10,7 +10,7 @@ import org.junit.Test
  * Unit test suite for [TdoAssertions].
  *
  * Verifies assertion helper methods for breadcrumb emission and sequential execution path checking,
- * including all boolean branch conditions.
+ * covering Cas A (sans expectedTag), Cas B (avec expectedTag mais sans substring), et Cas C (avec expectedTag ET substring).
  */
 class TdoAssertionsTest {
 
@@ -30,39 +30,50 @@ class TdoAssertionsTest {
         BreadcrumbManager.clear()
     }
 
+    // =========================================================================
+    // Cas C : Log avec le marqueur expectedTag ET le texte substring (SUCCÈS)
+    // =========================================================================
+
     /**
-     * Verifies that [TdoAssertions.assertBreadcrumbEmitted] passes when matching breadcrumb exists.
+     * Cas C : Verifies that [TdoAssertions.assertBreadcrumbEmitted] passes when a breadcrumb
+     * containing BOTH expectedTag AND substring exists in memory.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
-    fun testAssertBreadcrumbEmitted_Success() {
+    fun testAssertBreadcrumbEmitted_CasC_TagAndSubstringPresent_Success() {
         BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Test event")
         TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Test event")
     }
 
+    // =========================================================================
+    // Cas A : Log SANS le marqueur expectedTag (ÉCHEC)
+    // =========================================================================
+
     /**
-     * Verifies that [TdoAssertions.assertBreadcrumbEmitted] throws [IllegalStateException] when breadcrumb is missing.
+     * Cas A : Verifies that [TdoAssertions.assertBreadcrumbEmitted] throws [IllegalStateException]
+     * when the breadcrumb buffer contains a log with a DIFFERENT tag than expectedTag.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
-    fun testAssertBreadcrumbEmitted_Missing_ThrowsException() {
+    fun testAssertBreadcrumbEmitted_CasA_WithoutExpectedTag_ThrowsException() {
+        BreadcrumbManager.addBreadcrumb(TraceConstants.BRANCH_ALT, "Test event")
         try {
-            TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Missing event")
-            fail("Expected IllegalStateException to be thrown")
+            TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Test event")
+            fail("Expected IllegalStateException when expectedTag is missing")
         } catch (_: IllegalStateException) {
-            // Expected exception
+            // Expected
         }
     }
 
     /**
-     * Verifies [TdoAssertions.assertBreadcrumbEmitted] on an empty breadcrumb buffer.
+     * Cas A : Verifies [TdoAssertions.assertBreadcrumbEmitted] on an empty breadcrumb buffer.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
-    fun testAssertBreadcrumbEmitted_EmptyBreadcrumbs_ThrowsException() {
+    fun testAssertBreadcrumbEmitted_CasA_EmptyBreadcrumbs_ThrowsException() {
         BreadcrumbManager.clear()
         try {
             TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Any Substring")
@@ -72,22 +83,30 @@ class TdoAssertionsTest {
         }
     }
 
+    // =========================================================================
+    // Cas B : Log AVEC le marqueur expectedTag MAIS SANS le texte substring (ÉCHEC)
+    // =========================================================================
+
     /**
-     * Verifies [TdoAssertions.assertBreadcrumbEmitted] when breadcrumb contains tag but wrong substring,
-     * exercising the short-circuit branch of the boolean condition.
+     * Cas B : Verifies [TdoAssertions.assertBreadcrumbEmitted] when breadcrumb contains expectedTag
+     * but does NOT contain substring, exercising the second decision branch.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
-    fun testAssertBreadcrumbEmitted_MatchingTagWrongSubstring_ThrowsException() {
+    fun testAssertBreadcrumbEmitted_CasB_MatchingTagWithoutSubstring_ThrowsException() {
         BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Correct Tag Wrong Text")
         try {
             TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Missing Substring")
-            fail("Expected IllegalStateException")
+            fail("Expected IllegalStateException when substring is missing")
         } catch (_: IllegalStateException) {
             // Expected
         }
     }
+
+    // =========================================================================
+    // Séquences de Fils d'Ariane (assertBreadcrumbSequence)
+    // =========================================================================
 
     /**
      * Verifies that [TdoAssertions.assertBreadcrumbSequence] passes when breadcrumbs match required sequence order.
