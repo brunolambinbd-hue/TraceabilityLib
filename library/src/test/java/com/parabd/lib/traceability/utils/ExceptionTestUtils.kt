@@ -7,8 +7,9 @@ import org.junit.Assert.fail
 /**
  * Unified Exception Observability Assertion for Unit & Integration Tests.
  *
- * Placed in [com.parabd.lib.traceability.utils] alongside [LogManager] and [BreadcrumbManager] to serve
- * as the unified Exception Observability Assertion API for the Traceability Library.
+ * Placed in [com.parabd.lib.traceability.utils] alongside [LogManager], [BreadcrumbManager],
+ * [TraceConstants], and [TdoAssertions] to serve as the unified Exception Observability Assertion API
+ * for the Traceability Library.
  *
  * Verifies 3 things in a single assertion:
  * 1. The expected exception class [T] is thrown by [block].

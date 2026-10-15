@@ -6,8 +6,9 @@ import com.parabd.lib.traceability.SatisfiesRequirement
 /**
  * Centralized logging and observability manager.
  *
- * Placed in [com.parabd.lib.traceability.utils] alongside [BreadcrumbManager] to serve as the unified
- * Dual-Channel Observability API (Logcat + Flight Recorder).
+ * Serves as the core component of the Dual-Channel Observability API (Logcat + Flight Recorder)
+ * in [com.parabd.lib.traceability.utils], working alongside [BreadcrumbManager], [TraceConstants],
+ * [TdoAssertions], and extension functions defined in LogManagerExt.kt.
  *
  * 1. Breadcrumbs are ALWAYS emitted unconditionally for TDO Flight Log tracking and post-mortem diagnostics.
  * 2. Logcat output is safely filtered based on [Log.isLoggable] or debug mode to avoid noise in release builds.
@@ -146,7 +147,7 @@ object LogManager {
      * and formatting the throwable's message with [fallbackMessage] if blank.
      *
      * @param tag The tag identifying the log source.
-     * @param prefix The log prefix describing the operation (e.g. "Audit failed: ").
+     * @param prefix The log prefix describing the operation (e.g. Audit failed:).
      * @param throwable The exception instance.
      * @param fallbackMessage Fallback message if throwable.message is null or blank.
      * @param marker The TDO marker prefix (defaults to [TraceConstants.RECOVERY]).
