@@ -34,6 +34,22 @@ class LogManagerExtTest {
     }
 
     /**
+     * Direct unit tests for helper function [extractThrowableDetail].
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testExtractThrowableDetail_DirectHelper() {
+        val exValid = RuntimeException("Valid message")
+        val exBlank = RuntimeException("   ")
+        val exNull = RuntimeException()
+
+        assertEquals("Valid message", extractThrowableDetail(exValid, "Fallback"))
+        assertEquals("Fallback", extractThrowableDetail(exBlank, "Fallback"))
+        assertEquals("Fallback", extractThrowableDetail(exNull, "Fallback"))
+    }
+
+    /**
      * Direct unit tests for helper function [formatErrorMessage].
      */
     @Test

@@ -1,0 +1,16 @@
+# TraceabilityLib - Coding Standards & Rules
+
+## 1. Syntax & Elvis Operators
+- **No Elvis Operators (`?:`) on Compound or Inlined Expressions**: Elvis operators can generate hidden short-circuit bytecode jumps in JaCoCo coverage reports. Prefer explicit, multi-line `if / else` blocks or helper methods to ensure 100% transparent decision branch coverage.
+
+## 2. Code Coverage & Quality (JaCoCo)
+- Maintain 100% line and branch coverage on all non-native helper classes (`BreadcrumbManager`, `TdoAssertions`, `LogManagerExt`).
+- Isolate native Android framework calls (`Logcat`) into protected defensive blocks.
+
+## 3. Documentation (KDoc)
+- Every class, interface, method, property, and parameter across both production (`src/main`) and test (`src/test`) source trees MUST have complete KDoc documentation.
+
+## 4. Requirements Traceability & Nomenclature
+- Annotate all production components with `@SatisfiesRequirement("X.Y.Z")`.
+- Annotate all unit and instrumented tests with `@CoveredRequirement("X.Y.Z")`.
+- Use `TraceConstants` (`EXPECTED`, `BRANCH_ALT`, `RECOVERY`, `UNEXPECTED`) for all technical log markers (0 Magic Strings).

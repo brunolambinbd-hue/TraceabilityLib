@@ -8,6 +8,41 @@ import com.parabd.lib.traceability.SatisfiesRequirement
  */
 
 /**
+ * Extracts the detail string from a throwable's message, returning [fallbackMessage] if null or blank.
+ *
+ * @param throwable The exception instance.
+ * @param fallbackMessage Fallback message if [throwable]'s message is null or blank.
+ * @return The message string or [fallbackMessage].
+ */
+@Suppress("FoldInitializerAndIfToElvis")
+internal fun extractThrowableDetail(throwable: Throwable, fallbackMessage: String): String {
+    val message = throwable.message
+    if (message == null) {
+        return fallbackMessage
+    }
+    val cleanMessage = message.trim()
+    if (cleanMessage.isEmpty()) {
+        return fallbackMessage
+    }
+    return message
+}
+
+/**
+ * Formats an operational prefix with a detail string, avoiding duplicated colon delimiters.
+ *
+ * @param prefix The log prefix (e.g. "Audit failed: " or "Audit failed").
+ * @param detail The detail message.
+ * @return The formatted string.
+ */
+internal fun formatPrefix(prefix: String, detail: String): String {
+    val clean = prefix.trimEnd()
+    if (clean.endsWith(":")) {
+        return "$clean $detail"
+    }
+    return "$clean: $detail"
+}
+
+/**
  * Formats a combined error message from an operational prefix and throwable detail with fallback support.
  *
  * @param prefix The log prefix describing the operation (e.g. "Audit failed: ").
@@ -20,15 +55,8 @@ internal fun formatErrorMessage(
     throwable: Throwable,
     fallbackMessage: String,
 ): String {
-    val messageText = throwable.message
-    val detail = messageText?.ifBlank { fallbackMessage } ?: fallbackMessage
-
-    val cleanPrefix = prefix.trimEnd()
-    return if (cleanPrefix.endsWith(":")) {
-        "$cleanPrefix $detail"
-    } else {
-        "$cleanPrefix: $detail"
-    }
+    val detail = extractThrowableDetail(throwable, fallbackMessage)
+    return formatPrefix(prefix, detail)
 }
 
 /**
