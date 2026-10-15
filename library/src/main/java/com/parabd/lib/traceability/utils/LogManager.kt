@@ -147,9 +147,9 @@ object LogManager {
      * and formatting the throwable's message with [fallbackMessage] if blank.
      *
      * @param tag The tag identifying the log source.
-     * @param prefix The log prefix describing the operation (e.g. Audit failed:).
+     * @param prefix The log prefix describing the operation (e.g. Audit failed).
      * @param throwable The exception instance.
-     * @param fallbackMessage Fallback message if throwable.message is null or blank.
+     * @param fallbackMessage Fallback message if message in throwable is null or blank.
      * @param marker The TDO marker prefix (defaults to [TraceConstants.RECOVERY]).
      */
     fun e(
