@@ -3,6 +3,7 @@ package com.parabd.lib.traceability.utils
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -86,6 +87,28 @@ class LogManagerExtTest {
         val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
         val found = breadcrumbs.any { it.contains(TraceConstants.UNEXPECTED) && it.contains("Unexpected anomaly") }
         assertTrue("Expected UNEXPECTED breadcrumb for 'Unexpected anomaly'", found)
+    }
+
+    /**
+     * Verifies that [LogManager.throwU] without explicit cause parameter uses default null cause value.
+     */
+    @Test
+    @Suppress("UNREACHABLE_CODE")
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testThrowU_WithoutCause_UsesDefaultNullCause() {
+        val exception = try {
+            LogManager.throwU("TEST_TAG", "Anomaly without cause")
+        } catch (e: IllegalStateException) {
+            e
+        }
+
+        assertEquals("Anomaly without cause", exception.message)
+        assertNull(exception.cause)
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        val found = breadcrumbs.any { it.contains(TraceConstants.UNEXPECTED) && it.contains("Anomaly without cause") }
+        assertTrue("Expected UNEXPECTED breadcrumb for 'Anomaly without cause'", found)
     }
 
     /**
