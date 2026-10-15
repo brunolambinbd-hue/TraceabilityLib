@@ -48,6 +48,7 @@ dependencies {
     testImplementation(libs.junit.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
