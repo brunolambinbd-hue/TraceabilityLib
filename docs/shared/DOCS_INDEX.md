@@ -1,5 +1,10 @@
 # Index de la Base de Connaissances ParaBD
 
+## 🛡️ Bibliothèque TraceabilityLib
+- [README Principal](../../README.md) : Vue d'ensemble, architecture à double canal et badges.
+- [Mode d'Emploi & Guide Pratique](../../USER_GUIDE.md) : Guide d'utilisation pas à pas, exemples de code de production, crash reporting et tests unitaires/instrumentés.
+- [Matrice des Exigences](../../REQUIREMENTS.md) : Spécifications architecturales et matrice de traçabilité des tests.
+
 ## 📋 Spécifications Fonctionnelles (Requirements)
 Les exigences sont classées par chapitres (1 à 6) suivant une numérotation à 5 chiffres.
 - [Chapitre 1 : Modélisation et Patrimoine](requirements/1_2_modelisation_multidimensionnelle.md)
