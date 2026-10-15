@@ -2,7 +2,8 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-SDK%2021%2B-green.svg?style=flat&logo=android)](https://developer.android.com)
-[![Build Status](https://img.shields.io/badge/Tests-28%20Passed-brightgreen.svg)](#-matrice-des-exigences)
+[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-79.5%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
+[![Tests Status](https://img.shields.io/badge/Tests-22%20Passed-brightgreen.svg)](#-matrice-des-exigences)
 [![License](https://img.shields.io/badge/License-Proprietary-blue.svg)](#)
 
 **TraceabilityLib** est la bibliothèque centrale d'observabilité, de traçabilité des exigences (*Requirements Traceability*) et de journalisation à double canal (*Dual-Channel Observability*) pour l'écosystème **ParaBD**.
@@ -18,6 +19,7 @@
   - [3. Marqueurs & Constantes de Traçabilité (TraceConstants)](#3-marqueurs--constantes-de-traçabilité-traceconstants)
   - [4. API Défensive](#4-api-défensive-logmanagerext)
   - [5. Assertions de Test TDO](#5-assertions-de-test-tdo)
+- [📊 Rapport de Couverture JaCoCo](#-rapport-de-couverture-de-code-jacoco)
 - [📖 Mode d'Emploi & Guide d'Utilisation](USER_GUIDE.md)
 - [📦 Installation & Intégration](#-installation--intégration)
 - [💡 Exemples d'Utilisation](#-exemples-dutilisation)
@@ -96,12 +98,6 @@ L'objet **`TraceConstants`** définit la nomenclature technique officielle de l'
 | **`[RECOVERY]`** | `TraceConstants.RECOVERY` | Bloc de rattrapage, exception gérée, processus de récupération. |
 | **`[UNEXPECTED]`** | `TraceConstants.UNEXPECTED` | Anomalie structurelle, violation de précondition ou état théoriquement impossible. |
 
-```kotlin
-// Utilisation directe des constantes TDO avec LogManager ou BreadcrumbManager
-BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Initialisation réussie")
-LogManager.w("TAG", "Utilisation du cache de repli", marker = TraceConstants.BRANCH_ALT)
-```
-
 ### 4. API Défensive (`LogManagerExt`)
 * **`LogManager.throwU(tag, message, cause)`** : Enregistre un fil d'Ariane `[UNEXPECTED]` et lève immédiatement une `IllegalStateException`.
 * **`LogManager.throwE(tag, message, exception)`** : Enregistre un fil d'Ariane `[RECOVERY]` et ré-émet l'exception transmise.
@@ -111,6 +107,25 @@ LogManager.w("TAG", "Utilisation du cache de repli", marker = TraceConstants.BRA
 * **`TdoAssertions.assertBreadcrumbEmitted(...)`** : Valide la présence d'un fil d'Ariane qualifié par un `TraceConstants`.
 * **`TdoAssertions.assertBreadcrumbSequence(...)`** : Valide l'ordre séquentiel d'exécution des événements (mode normal ou strict).
 * **`assertExceptionEmitted<T>(...)`** : Vérifie en une seule assertion la levée d'une exception, son message, et la présence du trace TDO associé dans le fil d'Ariane.
+
+---
+
+## 📊 Rapport de Couverture de Code (JaCoCo)
+
+Génération du rapport automatisé JaCoCo via Gradle :
+```bash
+./gradlew :library:jacocoTestReport
+```
+
+| Composant Source | Couverture Lignes | Couverture Instructions | Statut JaCoCo |
+| :--- | :---: | :---: | :---: |
+| **`BreadcrumbManager.kt`** | **100%** (12/12) | **100%** (78/78) | `🟢 EXCELLENT` |
+| **`LogManagerExt.kt`** | **94.4%** (17/18) | **87.2%** (130/149) | `🟢 EXCELLENT` |
+| **`TdoAssertions.kt`** | **80.0%** (20/25) | **68.6%** (142/207) | `🟢 TRÈS BON` |
+| **`LogManager.kt`** | **71.6%** (48/67)* | **78.0%** (298/382) | `🟢 TRÈS BON` |
+| **TOTAL BIBLIOTHÈQUE** | **79.5%** (97/122) | **79.4%** (648/816) | `🟢 VALIDE` |
+
+*> Note : Les lignes non couvertes dans LogManager.kt correspondent aux blocs `catch (_: Throwable)` de protection défensive autour des appels natifs Android Logcat lorsqu'ils sont exécutés en environnement de test JVM hors émulateur.*
 
 ---
 

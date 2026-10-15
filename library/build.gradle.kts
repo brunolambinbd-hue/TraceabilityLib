@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("maven-publish")
+    jacoco
+}
+
+configure<JacocoPluginExtension> {
+    toolVersion = "0.8.12"
 }
 
 android {
@@ -11,6 +16,12 @@ android {
     defaultConfig {
         minSdk = libs.versions.sdkMin.get().toString().toInt()
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildTypes {
+        getByName("debug") {
+            enableUnitTestCoverage = true
+        }
     }
 
     publishing {
@@ -28,6 +39,39 @@ android {
 
 dependencies {
     testImplementation(libs.junit.junit)
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*"
+    )
+
+    val debugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    val mainSrc = "${projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(layout.buildDirectory.get()) {
+        include(
+            "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
+            "jacoco/testDebugUnitTest.exec"
+        )
+    })
 }
 
 afterEvaluate {
