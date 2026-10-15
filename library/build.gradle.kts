@@ -24,6 +24,12 @@ android {
         }
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     publishing {
         singleVariant("release")
     }
@@ -39,6 +45,8 @@ android {
 
 dependencies {
     testImplementation(libs.junit.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockito.kotlin)
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {

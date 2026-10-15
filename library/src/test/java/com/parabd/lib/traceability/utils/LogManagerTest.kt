@@ -124,4 +124,33 @@ class LogManagerTest {
         LogManager.forceLoggable = false
         assertFalse(LogManager.isLoggable("TAG", android.util.Log.DEBUG))
     }
+
+    /**
+     * Verifies that [LogManager.d], [LogManager.i], [LogManager.w], [LogManager.e], [LogManager.u] execute
+     * Logcat output blocks safely when [LogManager.forceLoggable] is `true`.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testLogManager_WhenForceLoggableTrue_ExecutesLogcatSafely() {
+        LogManager.forceLoggable = true
+
+        LogManager.d("TEST_TAG", "Debug enabled test")
+        LogManager.i("TEST_TAG", "Info enabled test")
+        LogManager.w("TEST_TAG", "Warn enabled test")
+        LogManager.e("TEST_TAG", "Error enabled test", RuntimeException("Exception detail"))
+        LogManager.e("TEST_TAG", "Error without throwable")
+        LogManager.e("TEST_TAG", "Error containing detail: Exception detail", RuntimeException("Exception detail"))
+        LogManager.e("TEST_TAG", "Error ending with colon: ", RuntimeException("Exception detail"))
+        LogManager.e(
+            tag = "TEST_TAG",
+            prefix = "Error overload: ",
+            throwable = RuntimeException("Overload exception"),
+            fallbackMessage = "Fallback",
+        )
+        LogManager.u("TEST_TAG", "Unexpected enabled test")
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        assertTrue("Breadcrumbs should be recorded when forceLoggable is true", breadcrumbs.isNotEmpty())
+    }
 }

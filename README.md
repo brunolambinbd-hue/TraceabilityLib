@@ -2,8 +2,8 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-SDK%2021%2B-green.svg?style=flat&logo=android)](https://developer.android.com)
-[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-79.5%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
-[![Tests Status](https://img.shields.io/badge/Tests-22%20Passed-brightgreen.svg)](#-matrice-des-exigences)
+[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-91.8%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
+[![Tests Status](https://img.shields.io/badge/Tests-29%20Passed-brightgreen.svg)](#-matrice-des-exigences)
 [![License](https://img.shields.io/badge/License-Proprietary-blue.svg)](#)
 
 **TraceabilityLib** est la bibliothèque centrale d'observabilité, de traçabilité des exigences (*Requirements Traceability*) et de journalisation à double canal (*Dual-Channel Observability*) pour l'écosystème **ParaBD**.
@@ -119,13 +119,13 @@ Génération du rapport automatisé JaCoCo via Gradle :
 
 | Composant Source | Couverture Lignes | Couverture Instructions | Statut JaCoCo |
 | :--- | :---: | :---: | :---: |
-| **`BreadcrumbManager.kt`** | **100%** (12/12) | **100%** (78/78) | `🟢 EXCELLENT` |
+| **`BreadcrumbManager.kt`** | **100.0%** (12/12) | **100.0%** (78/78) | `🟢 100% ATTEINT` |
+| **`TdoAssertions.kt`** | **100.0%** (25/25) | **98.5%** (204/207) | `🟢 100% LIGNES` |
 | **`LogManagerExt.kt`** | **94.4%** (17/18) | **87.2%** (130/149) | `🟢 EXCELLENT` |
-| **`TdoAssertions.kt`** | **80.0%** (20/25) | **68.6%** (142/207) | `🟢 TRÈS BON` |
-| **`LogManager.kt`** | **71.6%** (48/67)* | **78.0%** (298/382) | `🟢 TRÈS BON` |
-| **TOTAL BIBLIOTHÈQUE** | **79.5%** (97/122) | **79.4%** (648/816) | `🟢 VALIDE` |
+| **`LogManager.kt`** | **86.6%** (58/67)* | **79.1%** (319/403) | `🟢 TRÈS BON` |
+| **TOTAL BIBLIOTHÈQUE** | **91.8%** (112/122) | **89.6%** (731/816) | `🟢 EXCELLENT` |
 
-*> Note : Les lignes non couvertes dans LogManager.kt correspondent aux blocs `catch (_: Throwable)` de protection défensive autour des appels natifs Android Logcat lorsqu'ils sont exécutés en environnement de test JVM hors émulateur.*
+*> Note : Les lignes non couvertes dans LogManager.kt (9 lignes) correspondent aux blocs `catch (_: Throwable)` de protection défensive autour des appels natifs Android Logcat lorsqu'ils sont exécutés en environnement de test JVM.*
 
 ---
 

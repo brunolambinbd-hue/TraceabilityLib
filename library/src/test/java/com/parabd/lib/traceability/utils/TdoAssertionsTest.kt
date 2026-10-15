@@ -72,4 +72,52 @@ class TdoAssertionsTest {
             ),
         )
     }
+
+    /**
+     * Verifies that [TdoAssertions.assertBreadcrumbSequence] throws [IllegalStateException] when sequence order is broken.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testAssertBreadcrumbSequence_OutOfOrder_ThrowsException() {
+        BreadcrumbManager.addBreadcrumb(TraceConstants.BRANCH_ALT, "Step 2")
+        BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Step 1")
+
+        try {
+            TdoAssertions.assertBreadcrumbSequence(
+                listOf(
+                    TraceConstants.EXPECTED to "Step 1",
+                    TraceConstants.BRANCH_ALT to "Step 2",
+                ),
+            )
+            fail("Expected IllegalStateException due to out-of-order sequence")
+        } catch (_: IllegalStateException) {
+            // Expected
+        }
+    }
+
+    /**
+     * Verifies that [TdoAssertions.assertBreadcrumbSequence] in strict mode throws [IllegalStateException] when extra breadcrumbs exist.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testAssertBreadcrumbSequence_StrictMismatch_ThrowsException() {
+        BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Step 1")
+        BreadcrumbManager.addBreadcrumb(TraceConstants.BRANCH_ALT, "Step 2")
+        BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Extra Step")
+
+        try {
+            TdoAssertions.assertBreadcrumbSequence(
+                expectedSequence = listOf(
+                    TraceConstants.EXPECTED to "Step 1",
+                    TraceConstants.BRANCH_ALT to "Step 2",
+                ),
+                strict = true,
+            )
+            fail("Expected IllegalStateException due to strict size mismatch")
+        } catch (_: IllegalStateException) {
+            // Expected
+        }
+    }
 }

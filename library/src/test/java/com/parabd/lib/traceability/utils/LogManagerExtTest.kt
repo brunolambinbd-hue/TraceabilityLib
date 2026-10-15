@@ -9,16 +9,24 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for [LogManager] extension functions defined in LogManagerExt.kt.
+ * Unit test suite for [LogManager] extension functions defined in LogManagerExt.kt.
+ *
+ * Verifies extension utilities [LogManager.throwU], [LogManager.throwE], and [LogManager.e] with prefix.
  */
 class LogManagerExtTest {
 
+    /**
+     * Resets breadcrumb buffer and loggable override flag before each test.
+     */
     @Before
     fun setUp() {
         BreadcrumbManager.clear()
         LogManager.forceLoggable = null
     }
 
+    /**
+     * Cleans up breadcrumb buffer and loggable override flag after each test.
+     */
     @After
     fun tearDown() {
         BreadcrumbManager.clear()
@@ -71,7 +79,7 @@ class LogManagerExtTest {
     }
 
     /**
-     * Verifies that [LogManager.e] with prefix formats raw exception message properly.
+     * Verifies that [LogManager.e] extension with prefix formats raw exception message properly.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
@@ -86,7 +94,7 @@ class LogManagerExtTest {
     }
 
     /**
-     * Verifies that [LogManager.e] with prefix already ending with space or colon does not duplicate delimiter.
+     * Verifies that [LogManager.e] extension with prefix already ending with space or colon does not duplicate delimiter.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
@@ -101,7 +109,7 @@ class LogManagerExtTest {
     }
 
     /**
-     * Verifies that [LogManager.e] uses the provided fallback message when exception message is blank or null.
+     * Verifies that [LogManager.e] extension uses the provided fallback message when exception message is blank or null.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
@@ -113,5 +121,21 @@ class LogManagerExtTest {
         val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
         val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Sync error: Custom fallback") }
         assertTrue("Expected RECOVERY breadcrumb using fallback message", found)
+    }
+
+    /**
+     * Verifies that [LogManager.e] with prefix executes Logcat output block safely when [LogManager.forceLoggable] is `true`.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testE_WithPrefix_WhenForceLoggableTrue_ExecutesLogcatSafely() {
+        LogManager.forceLoggable = true
+        val exception = RuntimeException("Network timeout")
+        LogManager.e("TEST_TAG", prefix = "Fetch failed", throwable = exception)
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Fetch failed: Network timeout") }
+        assertTrue("Expected RECOVERY breadcrumb when forceLoggable is true", found)
     }
 }
