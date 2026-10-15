@@ -21,11 +21,7 @@ internal fun formatErrorMessage(
     fallbackMessage: String,
 ): String {
     val messageText = throwable.message
-    val detail = if (messageText.isNullOrBlank()) {
-        fallbackMessage
-    } else {
-        messageText
-    }
+    val detail = messageText?.ifBlank { fallbackMessage } ?: fallbackMessage
 
     val cleanPrefix = prefix.trimEnd()
     return if (cleanPrefix.endsWith(":")) {
