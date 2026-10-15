@@ -34,8 +34,7 @@ object LogManager {
      */
     internal fun isLoggable(tag: String, level: Int): Boolean {
         val forced = forceLoggable
-        if (forced != null) return forced
-        return try {
+        return forced ?: try {
             Log.isLoggable(tag, level)
         } catch (_: Throwable) {
             true
@@ -113,10 +112,10 @@ object LogManager {
         marker: String = TraceConstants.RECOVERY,
     ) {
         val fullMsg = if (throwable != null) {
-            val exMsg = throwable.message
-            if (exMsg != null && exMsg.isNotBlank() && message.contains(exMsg)) {
+            val exMsg = throwable.message?.takeIf { it.isNotBlank() }
+            if ((exMsg != null) && message.contains(exMsg)) {
                 message
-            } else if (exMsg != null && exMsg.isNotBlank()) {
+            } else if (exMsg != null) {
                 if (message.endsWith(" ") || message.endsWith(":")) {
                     "$message$exMsg"
                 } else {
@@ -159,12 +158,7 @@ object LogManager {
         fallbackMessage: String,
         marker: String = TraceConstants.RECOVERY,
     ) {
-        val raw = throwable.message
-        val detail = if (raw != null && raw.isNotBlank()) {
-            raw
-        } else {
-            fallbackMessage
-        }
+        val detail = throwable.message?.takeIf { it.isNotBlank() } ?: fallbackMessage
 
         val fullMsg = if (prefix.endsWith(" ") || prefix.endsWith(": ")) {
             "$prefix$detail"
@@ -197,38 +191,5 @@ object LogManager {
                 Log.e(tag, "${TraceConstants.UNEXPECTED} $message")
             } catch (_: Throwable) {}
         }
-    }
-
-    /**
-     * Emits an UNEXPECTED anomaly log via [u] and immediately throws an [IllegalStateException].
-     *
-     * Useful for defensive programming where a structural anomaly must halt execution.
-     *
-     * @param tag The tag identifying the log source.
-     * @param message The message describing the anomaly.
-     * @param cause Optional underlying cause of the exception.
-     * @return Nothing, as this function always throws an exception.
-     * @throws IllegalStateException Always thrown with [message] and [cause].
-     */
-    fun throwU(tag: String, message: String, cause: Throwable? = null): Nothing {
-        u(tag, message)
-        throw IllegalStateException(message, cause)
-    }
-
-    /**
-     * Emits an ERROR level log via [e] and rethrows the provided exception.
-     *
-     * Useful for logging an error right before propagating the exception up the call stack.
-     *
-     * @param T The type of throwable to throw.
-     * @param tag The tag identifying the log source.
-     * @param message The error message to record.
-     * @param exception The exception to log and throw.
-     * @return Nothing, as this function always throws [exception].
-     * @throws Throwable Always rethrows [exception].
-     */
-    fun <T : Throwable> throwE(tag: String, message: String, exception: T): Nothing {
-        e(tag, message, exception)
-        throw exception
     }
 }

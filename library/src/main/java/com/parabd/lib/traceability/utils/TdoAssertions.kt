@@ -47,7 +47,7 @@ object TdoAssertions {
 
         expectedSequence.forEachIndexed { step, (expectedTag, expectedSub) ->
             val foundIndex = breadcrumbs.indexOfFirst { item ->
-                breadcrumbs.indexOf(item) > lastFoundIndex &&
+                (breadcrumbs.indexOf(item) > lastFoundIndex) &&
                 item.contains(expectedTag) &&
                 item.contains(expectedSub)
             }

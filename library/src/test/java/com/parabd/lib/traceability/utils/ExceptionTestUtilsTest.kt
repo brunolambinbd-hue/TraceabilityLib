@@ -8,22 +8,33 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for [assertExceptionEmitted], [LogManager.throwU], and [LogManager.throwE] in [com.parabd.lib.traceability.utils].
+ * Unit test suite for [assertExceptionEmitted].
+ *
+ * Verifies combined assertion of exception class type, exception message content, and flight recorder trace emission.
  */
 class ExceptionTestUtilsTest {
 
+    /**
+     * Resets breadcrumb buffer and loggable override flag before each test.
+     */
     @Before
     fun setUp() {
         BreadcrumbManager.clear()
         LogManager.forceLoggable = null
     }
 
+    /**
+     * Cleans up breadcrumb buffer and loggable override flag after each test.
+     */
     @After
     fun tearDown() {
         BreadcrumbManager.clear()
         LogManager.forceLoggable = null
     }
 
+    /**
+     * Verifies that [assertExceptionEmitted] passes when exception type, message, and breadcrumb trace match.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -35,13 +46,16 @@ class ExceptionTestUtilsTest {
         assertEquals("Critical UI Failure", ex.message)
     }
 
+    /**
+     * Verifies that [assertExceptionEmitted] works with custom markers such as [TraceConstants.RECOVERY].
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
     fun testAssertExceptionEmitted_RecoverySuccess() {
         val ex = assertExceptionEmitted<RuntimeException>(
             expectedSubstring = "I/O Error",
-            expectedMarker = TraceConstants.RECOVERY
+            expectedMarker = TraceConstants.RECOVERY,
         ) {
             LogManager.throwE("TEST_TAG", "I/O Error", RuntimeException("I/O Error"))
         }
@@ -49,6 +63,9 @@ class ExceptionTestUtilsTest {
         assertEquals("I/O Error", ex.message)
     }
 
+    /**
+     * Verifies that [assertExceptionEmitted] fails when thrown exception is of wrong type.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -63,6 +80,9 @@ class ExceptionTestUtilsTest {
         }
     }
 
+    /**
+     * Verifies that [assertExceptionEmitted] fails when exception message does not contain expected substring.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -77,6 +97,9 @@ class ExceptionTestUtilsTest {
         }
     }
 
+    /**
+     * Verifies that [assertExceptionEmitted] fails when exception is thrown without emitting flight recorder trace.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")

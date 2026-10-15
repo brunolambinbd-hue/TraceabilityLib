@@ -28,7 +28,7 @@ inline fun <reified T : Throwable> assertExceptionEmitted(
     expectedSubstring: String,
     expectedMarker: String = TraceConstants.UNEXPECTED,
     expectedLogSubstring: String? = null,
-    noinline block: () -> Unit
+    noinline block: () -> Unit,
 ): T {
     // 1. Check Exception Type
     val exception: T = try {
@@ -43,7 +43,7 @@ inline fun <reified T : Throwable> assertExceptionEmitted(
     val fullMessage = exception.message.orEmpty() + " " + exception.cause?.message.orEmpty()
     assertTrue(
         "Expected exception message containing '$expectedSubstring', but got '$fullMessage'",
-        fullMessage.contains(expectedSubstring)
+        fullMessage.contains(expectedSubstring),
     )
 
     // 3. Check Observability Flight Log Trace
@@ -54,7 +54,7 @@ inline fun <reified T : Throwable> assertExceptionEmitted(
     }
     assertTrue(
         "Expected Flight Log trace containing '$expectedMarker' and '$logSub', but recent logs were:\n${breadcrumbs.takeLast(10).joinToString("\n")}",
-        hasTrace
+        hasTrace,
     )
 
     return exception

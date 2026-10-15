@@ -7,20 +7,31 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for [TdoAssertions] in [com.parabd.lib.traceability.utils].
+ * Unit test suite for [TdoAssertions].
+ *
+ * Verifies assertion helper methods for breadcrumb emission and sequential execution path checking.
  */
 class TdoAssertionsTest {
 
+    /**
+     * Resets breadcrumb buffer before each test.
+     */
     @Before
     fun setUp() {
         BreadcrumbManager.clear()
     }
 
+    /**
+     * Cleans up breadcrumb buffer after each test.
+     */
     @After
     fun tearDown() {
         BreadcrumbManager.clear()
     }
 
+    /**
+     * Verifies that [TdoAssertions.assertBreadcrumbEmitted] passes when matching breadcrumb exists.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -29,6 +40,9 @@ class TdoAssertionsTest {
         TdoAssertions.assertBreadcrumbEmitted(TraceConstants.EXPECTED, "Test event")
     }
 
+    /**
+     * Verifies that [TdoAssertions.assertBreadcrumbEmitted] throws [IllegalStateException] when breadcrumb is missing.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -41,6 +55,9 @@ class TdoAssertionsTest {
         }
     }
 
+    /**
+     * Verifies that [TdoAssertions.assertBreadcrumbSequence] passes when breadcrumbs match required sequence order.
+     */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
@@ -51,8 +68,8 @@ class TdoAssertionsTest {
         TdoAssertions.assertBreadcrumbSequence(
             listOf(
                 TraceConstants.EXPECTED to "Step 1",
-                TraceConstants.BRANCH_ALT to "Step 2"
-            )
+                TraceConstants.BRANCH_ALT to "Step 2",
+            ),
         )
     }
 }
