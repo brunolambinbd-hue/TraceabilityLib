@@ -52,6 +52,27 @@ class LogManagerTest {
     }
 
     /**
+     * Direct unit tests for helper function [safeLogcat].
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testSafeLogcat_DirectHelper() {
+        var executed = false
+        safeLogcat {
+            executed = true
+        }
+        assertTrue("safeLogcat should execute the action lambda", executed)
+
+        var catchExecuted = false
+        safeLogcat {
+            catchExecuted = true
+            throw RuntimeException("Simulated Logcat failure")
+        }
+        assertTrue("safeLogcat should swallow exception without crashing", catchExecuted)
+    }
+
+    /**
      * Direct unit tests for helper function [formatThrowableMessage].
      */
     @Test
@@ -201,13 +222,8 @@ class LogManagerTest {
             mockLog.`when`<Int> { Log.e(anyString(), anyString(), any(Throwable::class.java)) }
                 .thenThrow(RuntimeException("Logcat e with throwable failure"))
 
-            // 1. Triggers catch in isLoggable
+            // 1. Triggers catch in isLoggable AND catch in d, i, w, e, u when forceLoggable is null
             LogManager.forceLoggable = null
-            val isLoggableCatch = LogManager.isLoggable("TAG", Log.DEBUG)
-            assertTrue("isLoggable should return true when Logcat throws exception", isLoggableCatch)
-
-            // 2. Triggers catches in d, i, w, e, u when forceLoggable = true
-            LogManager.forceLoggable = true
 
             LogManager.d("TAG", "Debug catch test")
             LogManager.i("TAG", "Info catch test")
@@ -217,8 +233,17 @@ class LogManagerTest {
             LogManager.e("TAG", "Error prefix catch test", RuntimeException("Sub error"), "Fallback")
             LogManager.u("TAG", "Unexpected catch test")
 
+            // 2. Triggers catches when forceLoggable = true as well
+            LogManager.forceLoggable = true
+
+            LogManager.d("TAG", "Debug forced catch test")
+            LogManager.i("TAG", "Info forced catch test")
+            LogManager.w("TAG", "Warn forced catch test")
+            LogManager.e("TAG", "Error forced catch test")
+            LogManager.u("TAG", "Unexpected forced catch test")
+
             val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
-            assertTrue("Breadcrumbs should still be recorded even when Logcat throws", breadcrumbs.size >= 6)
+            assertTrue("Breadcrumbs should still be recorded even when Logcat throws", breadcrumbs.size >= 10)
         }
     }
 }

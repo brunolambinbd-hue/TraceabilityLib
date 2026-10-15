@@ -4,6 +4,19 @@ import android.util.Log
 import com.parabd.lib.traceability.SatisfiesRequirement
 
 /**
+ * Executes a native Android Logcat action safely, swallowing any framework exceptions.
+ *
+ * @param action The Logcat invocation lambda.
+ */
+internal fun safeLogcat(action: () -> Unit) {
+    try {
+        action()
+    } catch (_: Throwable) {
+        // Defensive guard against native Logcat failures
+    }
+}
+
+/**
  * Formats a message with an exception's detail message, avoiding duplicate text and colon delimiters.
  *
  * @param message The primary log message or prefix.
@@ -85,9 +98,7 @@ object LogManager {
     fun d(tag: String, message: String, marker: String = TraceConstants.EXPECTED) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.DEBUG)) {
-            try {
-                Log.d(tag, "$marker $message")
-            } catch (_: Throwable) {}
+            safeLogcat { Log.d(tag, "$marker $message") }
         }
     }
 
@@ -103,9 +114,7 @@ object LogManager {
     fun i(tag: String, message: String, marker: String = TraceConstants.EXPECTED) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.INFO)) {
-            try {
-                Log.i(tag, "$marker $message")
-            } catch (_: Throwable) {}
+            safeLogcat { Log.i(tag, "$marker $message") }
         }
     }
 
@@ -121,9 +130,7 @@ object LogManager {
     fun w(tag: String, message: String, marker: String = TraceConstants.BRANCH_ALT) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.WARN)) {
-            try {
-                Log.w(tag, "$marker $message")
-            } catch (_: Throwable) {}
+            safeLogcat { Log.w(tag, "$marker $message") }
         }
     }
 
@@ -152,13 +159,13 @@ object LogManager {
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
         if (isLoggable(tag, Log.ERROR)) {
-            try {
+            safeLogcat {
                 if (throwable != null) {
                     Log.e(tag, "$marker $fullMsg", throwable)
                 } else {
                     Log.e(tag, "$marker $fullMsg")
                 }
-            } catch (_: Throwable) {}
+            }
         }
     }
 
@@ -185,9 +192,7 @@ object LogManager {
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
         if (isLoggable(tag, Log.ERROR)) {
-            try {
-                Log.e(tag, "$marker $fullMsg", throwable)
-            } catch (_: Throwable) {}
+            safeLogcat { Log.e(tag, "$marker $fullMsg", throwable) }
         }
     }
 
@@ -203,9 +208,7 @@ object LogManager {
     fun u(tag: String, message: String) {
         BreadcrumbManager.addBreadcrumb(TraceConstants.UNEXPECTED, message)
         if (isLoggable(tag, Log.ERROR)) {
-            try {
-                Log.e(tag, "${TraceConstants.UNEXPECTED} $message")
-            } catch (_: Throwable) {}
+            safeLogcat { Log.e(tag, "${TraceConstants.UNEXPECTED} $message") }
         }
     }
 }
