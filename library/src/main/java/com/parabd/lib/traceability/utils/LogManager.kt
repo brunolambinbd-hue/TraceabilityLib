@@ -63,7 +63,10 @@ object LogManager {
      */
     internal fun isLoggable(tag: String, level: Int): Boolean {
         val forced = forceLoggable
-        return forced ?: try {
+        if (forced != null) {
+            return forced
+        }
+        return try {
             Log.isLoggable(tag, level)
         } catch (_: Throwable) {
             true
@@ -140,7 +143,11 @@ object LogManager {
         throwable: Throwable? = null,
         marker: String = TraceConstants.RECOVERY,
     ) {
-        val fullMsg = throwable?.let { formatThrowableMessage(message, it) } ?: message
+        val fullMsg = if (throwable == null) {
+            message
+        } else {
+            formatThrowableMessage(message, throwable)
+        }
 
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
