@@ -25,6 +25,7 @@ android {
         jvmTarget = libs.versions.javaVersion.get().toString()
     }
 }
+
 dependencies {
     testImplementation(libs.junit.junit)
 }
@@ -39,7 +40,15 @@ afterEvaluate {
                 version = "1.0.0"
             }
         }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/brunolambinbd-hue/TraceabilityLib")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as? String
+                    password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as? String
+                }
+            }
+        }
     }
 }
-
-
