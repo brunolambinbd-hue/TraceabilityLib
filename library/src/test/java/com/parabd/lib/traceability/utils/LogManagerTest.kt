@@ -1,5 +1,6 @@
 package com.parabd.lib.traceability.utils
 
+import android.util.Log
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -7,6 +8,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mockStatic
 
 /**
  * Unit test suite for [LogManager].
@@ -139,10 +144,10 @@ class LogManagerTest {
     @CoveredRequirement("6.3.2.9.10")
     fun testLogManager_LoggableFlag_OverridesStatus() {
         LogManager.forceLoggable = true
-        assertTrue(LogManager.isLoggable("TAG", android.util.Log.DEBUG))
+        assertTrue(LogManager.isLoggable("TAG", Log.DEBUG))
 
         LogManager.forceLoggable = false
-        assertFalse(LogManager.isLoggable("TAG", android.util.Log.DEBUG))
+        assertFalse(LogManager.isLoggable("TAG", Log.DEBUG))
     }
 
     /**
@@ -172,5 +177,48 @@ class LogManagerTest {
 
         val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
         assertTrue("Breadcrumbs should be recorded when forceLoggable is true", breadcrumbs.isNotEmpty())
+    }
+
+    /**
+     * Verifies that all defensive `catch (_: Throwable)` blocks in [LogManager] handle native
+     * Logcat exceptions gracefully without interrupting breadcrumb emission.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testLogManager_CatchBlocks_WhenLogcatThrows() {
+        mockStatic(Log::class.java).use { mockLog ->
+            mockLog.`when`<Boolean> { Log.isLoggable(anyString(), anyInt()) }
+                .thenThrow(RuntimeException("Logcat isLoggable failure"))
+            mockLog.`when`<Int> { Log.d(anyString(), anyString()) }
+                .thenThrow(RuntimeException("Logcat d failure"))
+            mockLog.`when`<Int> { Log.i(anyString(), anyString()) }
+                .thenThrow(RuntimeException("Logcat i failure"))
+            mockLog.`when`<Int> { Log.w(anyString(), anyString()) }
+                .thenThrow(RuntimeException("Logcat w failure"))
+            mockLog.`when`<Int> { Log.e(anyString(), anyString()) }
+                .thenThrow(RuntimeException("Logcat e failure"))
+            mockLog.`when`<Int> { Log.e(anyString(), anyString(), any(Throwable::class.java)) }
+                .thenThrow(RuntimeException("Logcat e with throwable failure"))
+
+            // 1. Triggers catch in isLoggable
+            LogManager.forceLoggable = null
+            val isLoggableCatch = LogManager.isLoggable("TAG", Log.DEBUG)
+            assertTrue("isLoggable should return true when Logcat throws exception", isLoggableCatch)
+
+            // 2. Triggers catches in d, i, w, e, u when forceLoggable = true
+            LogManager.forceLoggable = true
+
+            LogManager.d("TAG", "Debug catch test")
+            LogManager.i("TAG", "Info catch test")
+            LogManager.w("TAG", "Warn catch test")
+            LogManager.e("TAG", "Error without throwable catch test")
+            LogManager.e("TAG", "Error with throwable catch test", RuntimeException("Sub error"))
+            LogManager.e("TAG", "Error prefix catch test", RuntimeException("Sub error"), "Fallback")
+            LogManager.u("TAG", "Unexpected catch test")
+
+            val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+            assertTrue("Breadcrumbs should still be recorded even when Logcat throws", breadcrumbs.size >= 6)
+        }
     }
 }
