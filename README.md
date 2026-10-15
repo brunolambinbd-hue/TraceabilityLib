@@ -15,7 +15,7 @@
 - [✨ Fonctionnalités Principales](#-fonctionnalités-principales)
   - [1. Traçabilité des Exigences](#1-traçabilité-des-exigences-requirements-traceability)
   - [2. Observabilité à Double Canal](#2-observabilité-à-double-canal-dual-channel-observability)
-  - [3. Marqueurs TDO Standardisés](#3-marqueurs-tdo-standardisés-traceconstants)
+  - [3. Marqueurs & Constantes de Traçabilité (TraceConstants)](#3-marqueurs--constantes-de-traçabilité-traceconstants)
   - [4. API Défensive](#4-api-défensive-logmanagerext)
   - [5. Assertions de Test TDO](#5-assertions-de-test-tdo)
 - [📖 Mode d'Emploi & Guide d'Utilisation](USER_GUIDE.md)
@@ -33,6 +33,7 @@ flowchart TD
     
     subgraph TraceabilityLib ["🛡️ TraceabilityLib"]
         LogManager["LogManager / LogManagerExt"]
+        TraceConstants["TraceConstants\n([EXPECTED], [BRANCH_ALT], [RECOVERY], [UNEXPECTED])"]
         
         subgraph Channel1 ["1️⃣ Canal Inconditionnel (Journal de Vol)"]
             BreadcrumbMgr["BreadcrumbManager"]
@@ -46,6 +47,7 @@ flowchart TD
     end
 
     ClientCode -->|"i(), w(), e(), u()"| LogManager
+    TraceConstants -.->|"Qualification TDO"| LogManager
     LogManager -->|"1. Toujours enregistrer"| BreadcrumbMgr
     BreadcrumbMgr --> Buffer
     
@@ -60,7 +62,7 @@ flowchart TD
 ```
 
 > [!NOTE]
-> **Principe du Journal de Vol (*Flight Recorder*)** : Les fils d'Ariane (*breadcrumbs*) sont **toujours** enregistrés en mémoire indépendamment du statut Logcat. En cas de crash ou d'anomalie, cet historique est flushé pour l'analyse post-mortem.
+> **Principe du Journal de Vol (*Flight Recorder*)** : Les fils d'Ariane (*breadcrumbs*) sont **toujours** enregistrés en mémoire indépendamment du statut Logcat, préfixés par un horodatage et un marqueur technique `TraceConstants`.
 
 ---
 
@@ -84,14 +86,21 @@ flowchart TD
 > [!TIP]
 > En test unitaire JVM, définissez `LogManager.forceLoggable = true` dans votre méthode `@Before` pour afficher les logs console pendant l'exécution de vos tests.
 
-### 3. Marqueurs TDO Standardisés (`TraceConstants`)
-Les marqueurs techniques unifiés assurent la qualification explicite des événements dans le journal de vol :
-| Marqueur | Constante | Description |
+### 3. Marqueurs & Constantes de Traçabilité (`TraceConstants`)
+L'objet **`TraceConstants`** définit la nomenclature technique officielle de l'écosystème **ParaBD** pour qualifier chaque événement d'exécution :
+
+| Marqueur TDO | Constante Code | Usage & Signification Métier |
 | :--- | :--- | :--- |
-| `[EXPECTED]` | `TraceConstants.EXPECTED` | Flux nominal et transitions d'état attendues. |
-| `[BRANCH_ALT]` | `TraceConstants.BRANCH_ALT` | Branches alternatives, avertissements ou mécanismes de repli. |
-| `[RECOVERY]` | `TraceConstants.RECOVERY` | Gestion d'erreurs, blocs de récupération et exceptions handled. |
-| `[UNEXPECTED]` | `TraceConstants.UNEXPECTED` | Anomalies structurelles, déviations logiques ou états impossibles. |
+| **`[EXPECTED]`** | `TraceConstants.EXPECTED` | Événement nominal, transition d'état normale, succès de traitement. |
+| **`[BRANCH_ALT]`** | `TraceConstants.BRANCH_ALT` | Branche alternative d'exécution, avertissement, comportement secondaire. |
+| **`[RECOVERY]`** | `TraceConstants.RECOVERY` | Bloc de rattrapage, exception gérée, processus de récupération. |
+| **`[UNEXPECTED]`** | `TraceConstants.UNEXPECTED` | Anomalie structurelle, violation de précondition ou état théoriquement impossible. |
+
+```kotlin
+// Utilisation directe des constantes TDO avec LogManager ou BreadcrumbManager
+BreadcrumbManager.addBreadcrumb(TraceConstants.EXPECTED, "Initialisation réussie")
+LogManager.w("TAG", "Utilisation du cache de repli", marker = TraceConstants.BRANCH_ALT)
+```
 
 ### 4. API Défensive (`LogManagerExt`)
 * **`LogManager.throwU(tag, message, cause)`** : Enregistre un fil d'Ariane `[UNEXPECTED]` et lève immédiatement une `IllegalStateException`.
@@ -99,7 +108,7 @@ Les marqueurs techniques unifiés assurent la qualification explicite des évén
 * **`LogManager.e(tag, prefix, throwable, fallbackMessage)`** : Formate automatiquement le message d'une exception avec préfixe et message de repli.
 
 ### 5. Assertions de Test TDO
-* **`TdoAssertions.assertBreadcrumbEmitted(...)`** : Valide la présence d'un fil d'Ariane dans le journal de vol.
+* **`TdoAssertions.assertBreadcrumbEmitted(...)`** : Valide la présence d'un fil d'Ariane qualifié par un `TraceConstants`.
 * **`TdoAssertions.assertBreadcrumbSequence(...)`** : Valide l'ordre séquentiel d'exécution des événements (mode normal ou strict).
 * **`assertExceptionEmitted<T>(...)`** : Vérifie en une seule assertion la levée d'une exception, son message, et la présence du trace TDO associé dans le fil d'Ariane.
 
@@ -141,13 +150,14 @@ package com.parabd.sample
 
 import com.parabd.lib.traceability.SatisfiesRequirement
 import com.parabd.lib.traceability.utils.LogManager
+import com.parabd.lib.traceability.utils.TraceConstants
 import com.parabd.lib.traceability.utils.throwU
 
 @SatisfiesRequirement("6.1.1.9")
 class InventoryRepository {
 
     fun loadItem(id: String) {
-        LogManager.i("INVENTORY", "Chargement de l'élément $id")
+        LogManager.i("INVENTORY", "Chargement de l'élément $id", marker = TraceConstants.EXPECTED)
 
         if (id.isBlank()) {
             LogManager.throwU("INVENTORY", "L'identifiant de l'élément ne peut pas être vide")
