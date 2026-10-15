@@ -13,6 +13,21 @@ import com.parabd.lib.traceability.SatisfiesRequirement
 object TdoAssertions {
 
     /**
+     * Checks if a breadcrumb entry contains both the expected TDO marker tag and substring.
+     *
+     * @param item The breadcrumb log entry.
+     * @param expectedTag The expected TDO marker tag (e.g. [TraceConstants.EXPECTED]).
+     * @param substring The expected substring within the breadcrumb message.
+     * @return `true` if [item] contains both [expectedTag] and [substring]; `false` otherwise.
+     */
+    internal fun isMatchingBreadcrumb(item: String, expectedTag: String, substring: String): Boolean {
+        if (!item.contains(expectedTag)) {
+            return false
+        }
+        return item.contains(substring)
+    }
+
+    /**
      * Asserts that a breadcrumb containing the specified prefix tag and message substring has been emitted to [BreadcrumbManager].
      *
      * @param expectedTag The expected TDO marker tag (e.g., [TraceConstants.EXPECTED]).
@@ -21,10 +36,12 @@ object TdoAssertions {
      */
     fun assertBreadcrumbEmitted(expectedTag: String, substring: String) {
         val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
-        val found = breadcrumbs.any { it.contains(expectedTag) && it.contains(substring) }
-        check(found) {
-            "Breadcrumb [$expectedTag] containing '$substring' MISSING in Flight Log.\n" +
-            "Recent Breadcrumbs (${breadcrumbs.size}):\n${breadcrumbs.takeLast(10).joinToString("\n")}"
+        val found = breadcrumbs.any { isMatchingBreadcrumb(it, expectedTag, substring) }
+        if (!found) {
+            throw IllegalStateException(
+                "Breadcrumb [$expectedTag] containing '$substring' MISSING in Flight Log.\n" +
+                "Recent Breadcrumbs (${breadcrumbs.size}):\n${breadcrumbs.takeLast(10).joinToString("\n")}",
+            )
         }
     }
 
@@ -46,25 +63,30 @@ object TdoAssertions {
         var lastFoundIndex = -1
 
         expectedSequence.forEachIndexed { step, (expectedTag, expectedSub) ->
-            val foundIndex = breadcrumbs.indexOfFirst { item ->
-                (breadcrumbs.indexOf(item) > lastFoundIndex) &&
-                item.contains(expectedTag) &&
-                item.contains(expectedSub)
+            var foundIndex = -1
+            for (i in (lastFoundIndex + 1) until breadcrumbs.size) {
+                val item = breadcrumbs[i]
+                if (isMatchingBreadcrumb(item, expectedTag, expectedSub)) {
+                    foundIndex = i
+                    break
+                }
             }
 
-            check(foundIndex > lastFoundIndex) {
-                "Execution Path Sequence Break at Step #$step: Expected [$expectedTag | '$expectedSub'] after index $lastFoundIndex.\n" +
-                "Flight Log Breadcrumbs (${breadcrumbs.size} total):\n${breadcrumbs.joinToString("\n")}"
+            if (foundIndex <= lastFoundIndex) {
+                throw IllegalStateException(
+                    "Execution Path Sequence Break at Step #$step: Expected [$expectedTag | '$expectedSub'] after index $lastFoundIndex.\n" +
+                    "Flight Log Breadcrumbs (${breadcrumbs.size} total):\n${breadcrumbs.joinToString("\n")}",
+                )
             }
 
             lastFoundIndex = foundIndex
         }
 
-        if (strict) {
-            check(breadcrumbs.size == expectedSequence.size) {
+        if (strict && (breadcrumbs.size != expectedSequence.size)) {
+            throw IllegalStateException(
                 "Strict Sequence Mismatch: Expected ${expectedSequence.size} total breadcrumbs, but found ${breadcrumbs.size}.\n" +
-                "Flight Log:\n${breadcrumbs.joinToString("\n")}"
-            }
+                "Flight Log:\n${breadcrumbs.joinToString("\n")}",
+            )
         }
     }
 }
