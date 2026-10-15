@@ -21,6 +21,7 @@ android {
     buildTypes {
         getByName("debug") {
             enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
     }
 
@@ -77,7 +78,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     executionData.setFrom(fileTree(layout.buildDirectory.get()) {
         include(
             "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",
-            "jacoco/testDebugUnitTest.exec"
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/code_coverage/debugAndroidTest/connected/**/*.ec"
         )
     })
 }
