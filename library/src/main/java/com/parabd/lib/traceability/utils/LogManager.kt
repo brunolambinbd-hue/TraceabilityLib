@@ -4,6 +4,34 @@ import android.util.Log
 import com.parabd.lib.traceability.SatisfiesRequirement
 
 /**
+ * Formats a message with an exception's detail message, avoiding duplicate text and colon delimiters.
+ *
+ * @param message The primary log message or prefix.
+ * @param throwable The exception instance.
+ * @return The formatted log string.
+ */
+@Suppress("FoldInitializerAndIfToElvis")
+internal fun formatThrowableMessage(message: String, throwable: Throwable): String {
+    val rawMsg = throwable.message
+    if (rawMsg == null) {
+        return message
+    }
+    val exMsg = rawMsg.trim()
+    if (exMsg.isEmpty()) {
+        return message
+    }
+    if (message.contains(exMsg)) {
+        return message
+    }
+
+    val cleanPrefix = message.trimEnd()
+    if (cleanPrefix.endsWith(":")) {
+        return "$cleanPrefix $exMsg"
+    }
+    return "$message ($exMsg)"
+}
+
+/**
  * Centralized logging and observability manager.
  *
  * Serves as the core component of the Dual-Channel Observability API (Logcat + Flight Recorder)
@@ -112,22 +140,7 @@ object LogManager {
         throwable: Throwable? = null,
         marker: String = TraceConstants.RECOVERY,
     ) {
-        val fullMsg = if (throwable != null) {
-            val exMsg = throwable.message?.takeIf { it.isNotBlank() }
-            if ((exMsg != null) && message.contains(exMsg)) {
-                message
-            } else if (exMsg != null) {
-                if (message.endsWith(" ") || message.endsWith(":")) {
-                    "$message$exMsg"
-                } else {
-                    "$message ($exMsg)"
-                }
-            } else {
-                message
-            }
-        } else {
-            message
-        }
+        val fullMsg = throwable?.let { formatThrowableMessage(message, it) } ?: message
 
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
@@ -159,13 +172,8 @@ object LogManager {
         fallbackMessage: String,
         marker: String = TraceConstants.RECOVERY,
     ) {
-        val detail = throwable.message?.takeIf { it.isNotBlank() } ?: fallbackMessage
-
-        val fullMsg = if (prefix.endsWith(" ") || prefix.endsWith(": ")) {
-            "$prefix$detail"
-        } else {
-            "$prefix: $detail"
-        }
+        val detail = extractThrowableDetail(throwable, fallbackMessage)
+        val fullMsg = formatPrefix(prefix, detail)
 
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 

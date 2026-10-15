@@ -2,6 +2,7 @@ package com.parabd.lib.traceability.utils
 
 import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -43,6 +44,25 @@ class LogManagerTest {
     fun tearDown() {
         BreadcrumbManager.clear()
         LogManager.forceLoggable = null
+    }
+
+    /**
+     * Direct unit tests for helper function [formatThrowableMessage].
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testFormatThrowableMessage_DirectHelper() {
+        val exValid = RuntimeException("Server crash")
+        val exBlank = RuntimeException("   ")
+        val exNull = RuntimeException()
+
+        assertEquals("Load failed: Server crash", formatThrowableMessage("Load failed:", exValid))
+        assertEquals("Load failed: Server crash", formatThrowableMessage("Load failed: ", exValid))
+        assertEquals("Load failed (Server crash)", formatThrowableMessage("Load failed", exValid))
+        assertEquals("Load failed", formatThrowableMessage("Load failed", exBlank))
+        assertEquals("Load failed", formatThrowableMessage("Load failed", exNull))
+        assertEquals("Load failed with Server crash", formatThrowableMessage("Load failed with Server crash", exValid))
     }
 
     /**
