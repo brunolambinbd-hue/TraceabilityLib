@@ -1,12 +1,39 @@
 package com.parabd.lib.traceability.utils
 
-import android.util.Log
 import com.parabd.lib.traceability.SatisfiesRequirement
 
 /**
  * Extension functions for [LogManager] providing helper utilities for exception logging,
  * automatic exception rethrowing, and formatted error messages with fallbacks.
  */
+
+/**
+ * Formats a combined error message from an operational prefix and throwable detail with fallback support.
+ *
+ * @param prefix The log prefix describing the operation (e.g. "Audit failed: ").
+ * @param throwable The exception instance.
+ * @param fallbackMessage Fallback message if [throwable]'s message is null or blank.
+ * @return The formatted error string with prefix and detail.
+ */
+internal fun formatErrorMessage(
+    prefix: String,
+    throwable: Throwable,
+    fallbackMessage: String,
+): String {
+    val messageText = throwable.message
+    val detail = if (messageText.isNullOrBlank()) {
+        fallbackMessage
+    } else {
+        messageText
+    }
+
+    val cleanPrefix = prefix.trimEnd()
+    return if (cleanPrefix.endsWith(":")) {
+        "$cleanPrefix $detail"
+    } else {
+        "$cleanPrefix: $detail"
+    }
+}
 
 /**
  * Emits an UNEXPECTED structural anomaly log via [LogManager.u] and immediately throws an [IllegalStateException].
@@ -47,7 +74,9 @@ fun <T : Throwable> LogManager.throwE(tag: String, message: String, exception: T
 
 /**
  * Emits an ERROR level log for an exception with an explicit prefix, automatically extracting
- * and formatting the throwable's message with a fallback message if null or blank.
+ * and formatting the throwable's message with [fallbackMessage] if null or blank.
+ *
+ * Delegates to [LogManager.e] to ensure unified dual-channel logging (Flight Recorder + Logcat).
  *
  * @param tag The tag identifying the log source.
  * @param prefix The log prefix describing the operation (e.g., "Audit failed: ").
@@ -62,16 +91,6 @@ fun LogManager.e(
     throwable: Throwable,
     fallbackMessage: String = "Operation failed",
 ) {
-    val detail = throwable.message.takeIf { !it.isNullOrBlank() } ?: fallbackMessage
-    val fullMsg = if (prefix.endsWith(" ") || prefix.endsWith(": ")) {
-        "$prefix$detail"
-    } else {
-        "$prefix: $detail"
-    }
-    BreadcrumbManager.addBreadcrumb(TraceConstants.RECOVERY, fullMsg)
-    if (isLoggable(tag, Log.ERROR)) {
-        try {
-            Log.e(tag, "${TraceConstants.RECOVERY} $fullMsg", throwable)
-        } catch (_: Throwable) {}
-    }
+    val fullMsg = formatErrorMessage(prefix, throwable, fallbackMessage)
+    e(tag, fullMsg, throwable)
 }

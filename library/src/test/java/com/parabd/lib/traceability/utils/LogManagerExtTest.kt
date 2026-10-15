@@ -34,6 +34,22 @@ class LogManagerExtTest {
     }
 
     /**
+     * Direct unit tests for helper function [formatErrorMessage].
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testFormatErrorMessage_DirectHelper() {
+        val exWithMsg = RuntimeException("Server error")
+        val exWithoutMsg = RuntimeException()
+
+        assertEquals("Load failed: Server error", formatErrorMessage("Load failed", exWithMsg, "Fallback"))
+        assertEquals("Load failed: Server error", formatErrorMessage("Load failed:", exWithMsg, "Fallback"))
+        assertEquals("Load failed: Server error", formatErrorMessage("Load failed: ", exWithMsg, "Fallback"))
+        assertEquals("Load failed: Fallback", formatErrorMessage("Load failed", exWithoutMsg, "Fallback"))
+    }
+
+    /**
      * Verifies that [LogManager.throwU] logs an UNEXPECTED breadcrumb and throws [IllegalStateException].
      */
     @Test
@@ -94,6 +110,21 @@ class LogManagerExtTest {
     }
 
     /**
+     * Verifies that [LogManager.e] extension with prefix already ending with colon without space formats properly.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testE_WithPrefixEndingWithColon_FormatsWithoutDuplicateColon() {
+        val exception = RuntimeException("Database error")
+        LogManager.e("TEST_TAG", prefix = "Save failed:", throwable = exception)
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Save failed: Database error") }
+        assertTrue("Expected RECOVERY breadcrumb without duplicated colon", found)
+    }
+
+    /**
      * Verifies that [LogManager.e] extension with prefix already ending with space or colon does not duplicate delimiter.
      */
     @Test
@@ -109,7 +140,7 @@ class LogManagerExtTest {
     }
 
     /**
-     * Verifies that [LogManager.e] extension uses the provided fallback message when exception message is blank or null.
+     * Verifies that [LogManager.e] extension uses the provided fallback message when exception message is blank.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
@@ -124,18 +155,36 @@ class LogManagerExtTest {
     }
 
     /**
-     * Verifies that [LogManager.e] with prefix executes Logcat output block safely when [LogManager.forceLoggable] is `true`.
+     * Verifies that [LogManager.e] extension uses the provided fallback message when exception message is strictly null.
      */
     @Test
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
-    fun testE_WithPrefix_WhenForceLoggableTrue_ExecutesLogcatSafely() {
+    fun testE_WithNullExceptionMessage_UsesFallbackMessage() {
+        val nullException = RuntimeException()
+        LogManager.e("TEST_TAG", prefix = "Null error", throwable = nullException, fallbackMessage = "Null fallback")
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Null error: Null fallback") }
+        assertTrue("Expected RECOVERY breadcrumb using fallback message for null message", found)
+    }
+
+    /**
+     * Verifies that [LogManager.e] with prefix executes Logcat output block safely when [LogManager.forceLoggable] is `true` or `false`.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testE_WithPrefix_WhenForceLoggableTrueAndFalse_ExecutesSafely() {
         LogManager.forceLoggable = true
         val exception = RuntimeException("Network timeout")
         LogManager.e("TEST_TAG", prefix = "Fetch failed", throwable = exception)
 
+        LogManager.forceLoggable = false
+        LogManager.e("TEST_TAG", prefix = "Fetch failed silent", throwable = exception)
+
         val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
-        val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Fetch failed: Network timeout") }
-        assertTrue("Expected RECOVERY breadcrumb when forceLoggable is true", found)
+        val found = breadcrumbs.any { it.contains(TraceConstants.RECOVERY) && it.contains("Fetch failed silent: Network timeout") }
+        assertTrue("Expected RECOVERY breadcrumb when forceLoggable is false", found)
     }
 }
