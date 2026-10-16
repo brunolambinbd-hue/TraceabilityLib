@@ -23,7 +23,7 @@ work = "2.9.0"
 imageCropper = "4.6.0"
 arcore = "1.47.0"
 truth = "1.4.2"
-sonar = "5.1.0.4882"
+sonar = "6.0.1.5171"
 dokka = "1.9.20"
 
 # Nouvelle version pour MediaPipe
