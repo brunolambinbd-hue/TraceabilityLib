@@ -70,6 +70,26 @@ class LogManagerTest {
     }
 
     /**
+     * Verifies that [LogManager.isLoggable] delegates to native Android [Log.isLoggable] when [LogManager.forceLoggable] is `null`.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testIsLoggable_DelegatesToNativeAndroidLogcat_WhenForceLoggableNull() {
+        mockStatic(Log::class.java).use { mockLog ->
+            mockLog.`when`<Boolean> { Log.isLoggable(anyString(), anyInt()) }.thenReturn(true)
+
+            LogManager.forceLoggable = null
+            val isLoggableTrue = LogManager.isLoggable("TAG", Log.DEBUG)
+            assertTrue("isLoggable should return true from mock", isLoggableTrue)
+
+            mockLog.`when`<Boolean> { Log.isLoggable(anyString(), anyInt()) }.thenReturn(false)
+            val isLoggableFalse = LogManager.isLoggable("TAG", Log.DEBUG)
+            assertFalse("isLoggable should return false from mock", isLoggableFalse)
+        }
+    }
+
+    /**
      * Direct unit tests for helper function [safeLogcat].
      */
     @Test

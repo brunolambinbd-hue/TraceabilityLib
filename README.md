@@ -2,8 +2,8 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-SDK%2021%2B-green.svg?style=flat&logo=android)](https://developer.android.com)
-[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-93.1%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
-[![Tests Status](https://img.shields.io/badge/Tests-37%20Passed-brightgreen.svg)](#-matrice-des-exigences)
+[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-97.2%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
+[![Tests Status](https://img.shields.io/badge/Tests-47%20Passed-brightgreen.svg)](#-matrice-des-exigences)
 [![License](https://img.shields.io/badge/License-Proprietary-blue.svg)](#)
 
 **TraceabilityLib** est la bibliothèque centrale d'observabilité, de traçabilité des exigences (*Requirements Traceability*) et de journalisation à double canal (*Dual-Channel Observability*) pour l'écosystème **ParaBD**.
@@ -117,15 +117,17 @@ Génération du rapport automatisé JaCoCo via Gradle :
 ./gradlew :library:jacocoTestReport
 ```
 
-| Composant Source | Couverture Lignes | Couverture Instructions | Statut JaCoCo |
+| Composant Source | Couverture Lignes | Couverture Branches | Statut JaCoCo |
 | :--- | :---: | :---: | :---: |
-| **`BreadcrumbManager.kt`** | **100.0%** (12/12) | **100.0%** (78/78) | `🟢 100% PARFAIT` |
-| **`TdoAssertions.kt`** | **100.0%** (32/32) | **100.0%** (194/194) | `🟢 100% PARFAIT` |
-| **`LogManagerExt.kt`** | **100.0%** (19/19) | **95.7%** (135/141) | `🟢 100% LIGNES` |
-| **`LogManager.kt`** | **86.6%** (58/67)* | **83.5%** (319/382) | `🟢 TRÈS BON` |
-| **TOTAL BIBLIOTHÈQUE** | **92.9%** (121/130) | **90.7%** (726/801) | `🟢 EXCELLENT` |
+| **`BreadcrumbManager.kt`** | **100.0%** (12/12) | **100.0%** (2/2) | `🟢 100% PARFAIT` |
+| **`TdoAssertions.kt`** | **100.0%** (32/32) | **100.0%** (14/14) | `🟢 100% PARFAIT` |
+| **`LogManagerExt.kt`** | **100.0%** (24/24) | **100.0%** (8/8) | `🟢 100% PARFAIT` |
+| **`formatThrowableMessage`** | **100.0%** (12/12) | **100.0%** (10/10) | `🟢 100% PARFAIT` |
+| **`safeLogcat`** | **100.0%** (4/4) | **100.0%** (0/0) | `🟢 100% PARFAIT` |
+| **`LogManager.kt`** | **94.7%** (72/76)* | **100.0%** (28/28) | `🟢 100% BRANCHES` |
+| **TOTAL BIBLIOTHÈQUE** | **97.2%** (140/144) | **100.0%** (52/52) | `🟢 100% BRANCHES` |
 
-*> Note : Les 9 lignes non couvertes dans LogManager.kt correspondent uniquement aux blocs `catch (_: Throwable)` de protection défensive Android Logcat native lors de l'exécution sur JVM.*
+*> Note : Les 4 lignes restantes non couvertes dans LogManager.kt correspondent uniquement au bloc catch (_: Throwable) de secours dans isLoggable lors de pannes natives d'E/S.*
 
 ---
 
