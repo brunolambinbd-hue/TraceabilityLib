@@ -140,6 +140,7 @@ Exécution du cycle d'analyse de qualité et envoi vers **SonarCloud.io** :
 > [!NOTE]
 > **Exclusions Multicritères (Standard ParaBDCollector)** :
 > Le script `build.gradle.kts` intègre la règle d'exclusion multicritère `e1` (`kotlin:S1313`) sur les fichiers `**/*.kt`. Cette configuration empêche SonarCloud de déclencher des faux positifs d'adresses IP sur les identifiants d'exigences à 4 nombres (`"6.1.1.9"`, `"6.1.2.9"`).
+> Pour plus de détails sur l'intégration SonarCloud, consultez [**SONARCLOUD_SETUP.md**](docs/SONARCLOUD_SETUP.md).
 
 ---
 
@@ -238,3 +239,4 @@ class InventoryRepositoryTest {
 ## 📚 Documentation Complète
 - 📖 [**USER_GUIDE.md**](USER_GUIDE.md) : Mode d'emploi pas à pas, exemples de code, gestionnaire de crash et bonnes pratiques.
 - 📋 [**REQUIREMENTS.md**](REQUIREMENTS.md) : Matrice de traçabilité des exigences, schéma Mermaid et couverture des tests unitaires.
+- 🌐 [**SONARCLOUD_SETUP.md**](docs/SONARCLOUD_SETUP.md) : Configuration SonarCloud, jetons, clés de projet et secrets GitHub Actions CI/CD.
