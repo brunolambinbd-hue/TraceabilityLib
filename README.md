@@ -2,7 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-SDK%2021%2B-green.svg?style=flat&logo=android)](https://developer.android.com)
-[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-97.2%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
+[![JaCoCo Coverage](https://img.shields.io/badge/Coverage-100%25%20JaCoCo-brightgreen.svg)](#-rapport-de-couverture-de-code-jacoco)
 [![Tests Status](https://img.shields.io/badge/Tests-47%20Passed-brightgreen.svg)](#-matrice-des-exigences)
 [![License](https://img.shields.io/badge/License-Proprietary-blue.svg)](#)
 
@@ -124,10 +124,8 @@ Génération du rapport automatisé JaCoCo via Gradle :
 | **`LogManagerExt.kt`** | **100.0%** (24/24) | **100.0%** (8/8) | `🟢 100% PARFAIT` |
 | **`formatThrowableMessage`** | **100.0%** (12/12) | **100.0%** (10/10) | `🟢 100% PARFAIT` |
 | **`safeLogcat`** | **100.0%** (4/4) | **100.0%** (0/0) | `🟢 100% PARFAIT` |
-| **`LogManager.kt`** | **94.7%** (72/76)* | **100.0%** (28/28) | `🟢 100% BRANCHES` |
-| **TOTAL BIBLIOTHÈQUE** | **97.2%** (140/144) | **100.0%** (52/52) | `🟢 100% BRANCHES` |
-
-*> Note : Les 4 lignes restantes non couvertes dans LogManager.kt correspondent uniquement au bloc catch (_: Throwable) de secours dans isLoggable lors de pannes natives d'E/S.*
+| **`LogManager.kt`** | **100.0%** (76/76) | **100.0%** (28/28) | `🟢 100% PARFAIT` |
+| **TOTAL BIBLIOTHÈQUE** | **100.0%** (140/140) | **100.0%** (52/52) | `🟢 100% PARFAIT` |
 
 ---
 

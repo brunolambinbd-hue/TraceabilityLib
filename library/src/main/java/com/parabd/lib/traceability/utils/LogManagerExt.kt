@@ -66,13 +66,30 @@ internal fun formatErrorMessage(
  *
  * @param tag The tag identifying the log source.
  * @param message The error message describing the structural anomaly.
+ * @return Nothing, as this function always throws an exception.
+ * @throws IllegalStateException Always thrown with [message].
+ */
+@SatisfiesRequirement("6.1.1.9")
+@SatisfiesRequirement("6.3.2.9")
+fun LogManager.throwU(tag: String, message: String): Nothing {
+    u(tag, message)
+    throw IllegalStateException(message)
+}
+
+/**
+ * Emits an UNEXPECTED structural anomaly log with a cause via [LogManager.u] and immediately throws an [IllegalStateException].
+ *
+ * Useful for defensive programming where a structural anomaly must halt execution.
+ *
+ * @param tag The tag identifying the log source.
+ * @param message The error message describing the structural anomaly.
  * @param cause Optional underlying cause of the exception.
  * @return Nothing, as this function always throws an exception.
  * @throws IllegalStateException Always thrown with [message] and [cause].
  */
 @SatisfiesRequirement("6.1.1.9")
 @SatisfiesRequirement("6.3.2.9")
-fun LogManager.throwU(tag: String, message: String, cause: Throwable? = null): Nothing {
+fun LogManager.throwU(tag: String, message: String, cause: Throwable?): Nothing {
     u(tag, message)
     throw IllegalStateException(message, cause)
 }
