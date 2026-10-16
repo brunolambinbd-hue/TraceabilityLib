@@ -51,9 +51,9 @@ Ce guide pratique détaille pas à pas l'intégration et l'utilisation de **Trac
 ### Dépendances `build.gradle.kts`
 ```kotlin
 dependencies {
-    implementation("com.parabd.lib:traceability:1.0.0")
-    testImplementation("com.parabd.lib:traceability:1.0.0")
-    androidTestImplementation("com.parabd.lib:traceability:1.0.0")
+    implementation("com.parabd.lib:traceability:1.1.0")
+    testImplementation("com.parabd.lib:traceability:1.1.0")
+    androidTestImplementation("com.parabd.lib:traceability:1.1.0")
 }
 ```
 
@@ -285,7 +285,7 @@ Dans le cadre des tests instrumentés (UI tests avec Espresso, Compose Test, ou 
 Dans votre `build.gradle.kts` :
 ```kotlin
 dependencies {
-    androidTestImplementation("com.parabd.lib:traceability:1.0.0")
+    androidTestImplementation("com.parabd.lib:traceability:1.1.0")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

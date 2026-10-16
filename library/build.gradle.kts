@@ -92,7 +92,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.parabd.lib"
                 artifactId = "traceability"
-                version = "1.0.0"
+                version = "1.1.0"
             }
         }
         repositories {
