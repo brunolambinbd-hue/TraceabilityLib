@@ -28,6 +28,17 @@ sonarqube {
         property("sonar.sources", "library/src/main/java")
         property("sonar.tests", "library/src/test/java")
         property("sonar.java.binaries", "library/build/tmp/kotlin-classes/debug")
+
+        // Exclusions multicritères de ParaBDCollector pour ignorer les faux-positifs S1313 (IPs/Requirement IDs)
+        property("sonar.issue.ignore.multicriteria", "e1,e2")
+
+        // e1 : Ignorer les faux-positifs d'adresses IP (S1313) sur les IDs à 4 chiffres des fichiers Kotlin
+        property("sonar.issue.ignore.multicriteria.e1.ruleKey", "kotlin:S1313")
+        property("sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.kt")
+
+        // e2 : Ignorer S6474 sur les fichiers Gradle
+        property("sonar.issue.ignore.multicriteria.e2.ruleKey", "kotlin:S6474")
+        property("sonar.issue.ignore.multicriteria.e2.resourceKey", "**/*.gradle.kts")
     }
 }
 
