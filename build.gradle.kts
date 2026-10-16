@@ -15,7 +15,9 @@ val localProperties = Properties().apply {
 
 sonarqube {
     properties {
-        property("sonar.projectKey", "TraceabilityLib")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.organization", localProperties.getProperty("sonar.organization") ?: "brunolambinbd-hue")
+        property("sonar.projectKey", localProperties.getProperty("sonar.projectKey") ?: "brunolambinbd-hue_TraceabilityLib")
         property("sonar.projectName", "TraceabilityLib")
         property("sonar.coverage.jacoco.xmlReportPaths", "${project.rootDir}/library/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.sources", "library/src/main/java")
