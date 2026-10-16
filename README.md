@@ -20,6 +20,7 @@
   - [4. API Défensive](#4-api-défensive-logmanagerext)
   - [5. Assertions de Test TDO](#5-assertions-de-test-tdo)
 - [📊 Rapport de Couverture JaCoCo](#-rapport-de-couverture-de-code-jacoco)
+- [🌐 Analyse Qualité SonarCloud](#-analyse-qualité-sonarcloud)
 - [📖 Mode d'Emploi & Guide d'Utilisation](USER_GUIDE.md)
 - [📦 Installation & Intégration](#-installation--intégration)
 - [💡 Exemples d'Utilisation](#-exemples-dutilisation)
@@ -129,6 +130,19 @@ Génération du rapport automatisé JaCoCo via Gradle :
 
 ---
 
+## 🌐 Analyse Qualité SonarCloud
+
+Exécution du cycle d'analyse de qualité et envoi vers **SonarCloud.io** :
+```bash
+./gradlew runSonarAnalysis
+```
+
+> [!NOTE]
+> **Exclusions Multicritères (Standard ParaBDCollector)** :
+> Le script `build.gradle.kts` intègre la règle d'exclusion multicritère `e1` (`kotlin:S1313`) sur les fichiers `**/*.kt`. Cette configuration empêche SonarCloud de déclencher des faux positifs d'adresses IP sur les identifiants d'exigences à 4 nombres (`"6.1.1.9"`, `"6.1.2.9"`).
+
+---
+
 ## 📦 Installation & Intégration
 
 ### 1. Publication en Maven Local
@@ -148,8 +162,8 @@ repositories {
 }
 
 dependencies {
-    implementation("com.parabd.lib:traceability:1.0.0")
-    testImplementation("com.parabd.lib:traceability:1.0.0")
+    implementation("com.parabd.lib:traceability:1.1.0")
+    testImplementation("com.parabd.lib:traceability:1.1.0")
 }
 ```
 
