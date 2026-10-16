@@ -5,6 +5,7 @@ import com.parabd.lib.traceability.CoveredRequirement
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -49,6 +50,23 @@ class LogManagerTest {
     fun tearDown() {
         BreadcrumbManager.clear()
         LogManager.forceLoggable = null
+    }
+
+    /**
+     * Verifies public getter and setter accessors of [@Volatile var forceLoggable].
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testLogManager_ForceLoggablePropertyGetterAndSetter() {
+        LogManager.forceLoggable = true
+        assertEquals(true, LogManager.forceLoggable)
+
+        LogManager.forceLoggable = false
+        assertEquals(false, LogManager.forceLoggable)
+
+        LogManager.forceLoggable = null
+        assertNull(LogManager.forceLoggable)
     }
 
     /**
