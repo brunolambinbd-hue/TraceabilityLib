@@ -8,7 +8,7 @@ import com.parabd.lib.traceability.SatisfiesRequirement
  *
  * @param action The Logcat invocation lambda.
  */
-internal fun safeLogcat(action: () -> Unit) {
+internal inline fun safeLogcat(action: () -> Unit) {
     try {
         action()
     } catch (_: Throwable) {

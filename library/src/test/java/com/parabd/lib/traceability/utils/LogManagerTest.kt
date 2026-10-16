@@ -163,6 +163,21 @@ class LogManagerTest {
     }
 
     /**
+     * Verifies branch coverage of [LogManager.e] overload with prefix when [LogManager.forceLoggable] is `false`.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testLogManager_ErrorOverload_WhenForceLoggableFalse_BranchCoverage() {
+        LogManager.forceLoggable = false
+
+        LogManager.e("TEST_TAG", "Prefix test", RuntimeException("Exception"), "Fallback")
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        assertTrue(breadcrumbs.any { it.contains("Prefix test: Exception") })
+    }
+
+    /**
      * Verifies that [LogManager.u] emits a breadcrumb with [TraceConstants.UNEXPECTED] unconditionally.
      */
     @Test
@@ -225,25 +240,33 @@ class LogManagerTest {
     @CoveredRequirement("6.1.1.9.10")
     @CoveredRequirement("6.3.2.9.10")
     fun testLogManager_WhenForceLoggableTrue_ExecutesLogcatSafely() {
-        LogManager.forceLoggable = true
+        mockStatic(Log::class.java).use { mockLog ->
+            mockLog.`when`<Int> { Log.d(anyString(), anyString()) }.thenReturn(0)
+            mockLog.`when`<Int> { Log.i(anyString(), anyString()) }.thenReturn(0)
+            mockLog.`when`<Int> { Log.w(anyString(), anyString()) }.thenReturn(0)
+            mockLog.`when`<Int> { Log.e(anyString(), anyString()) }.thenReturn(0)
+            mockLog.`when`<Int> { Log.e(anyString(), anyString(), any(Throwable::class.java)) }.thenReturn(0)
 
-        LogManager.d("TEST_TAG", "Debug enabled test")
-        LogManager.i("TEST_TAG", "Info enabled test")
-        LogManager.w("TEST_TAG", "Warn enabled test")
-        LogManager.e("TEST_TAG", "Error enabled test", RuntimeException("Exception detail"))
-        LogManager.e("TEST_TAG", "Error without throwable")
-        LogManager.e("TEST_TAG", "Error containing detail: Exception detail", RuntimeException("Exception detail"))
-        LogManager.e("TEST_TAG", "Error ending with colon: ", RuntimeException("Exception detail"))
-        LogManager.e(
-            tag = "TEST_TAG",
-            prefix = "Error overload: ",
-            throwable = RuntimeException("Overload exception"),
-            fallbackMessage = "Fallback",
-        )
-        LogManager.u("TEST_TAG", "Unexpected enabled test")
+            LogManager.forceLoggable = true
 
-        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
-        assertTrue("Breadcrumbs should be recorded when forceLoggable is true", breadcrumbs.isNotEmpty())
+            LogManager.d("TEST_TAG", "Debug enabled test")
+            LogManager.i("TEST_TAG", "Info enabled test")
+            LogManager.w("TEST_TAG", "Warn enabled test")
+            LogManager.e("TEST_TAG", "Error enabled test", RuntimeException("Exception detail"))
+            LogManager.e("TEST_TAG", "Error without throwable")
+            LogManager.e("TEST_TAG", "Error containing detail: Exception detail", RuntimeException("Exception detail"))
+            LogManager.e("TEST_TAG", "Error ending with colon: ", RuntimeException("Exception detail"))
+            LogManager.e(
+                tag = "TEST_TAG",
+                prefix = "Error overload: ",
+                throwable = RuntimeException("Overload exception"),
+                fallbackMessage = "Fallback",
+            )
+            LogManager.u("TEST_TAG", "Unexpected enabled test")
+
+            val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+            assertTrue("Breadcrumbs should be recorded when forceLoggable is true", breadcrumbs.isNotEmpty())
+        }
     }
 
     /**
