@@ -8,7 +8,7 @@ import com.parabd.lib.traceability.SatisfiesRequirement
  *
  * @param action The Logcat invocation lambda.
  */
-internal inline fun safeLogcat(action: () -> Unit) {
+internal fun safeLogcat(action: () -> Unit) {
     try {
         action()
     } catch (_: Throwable) {
@@ -98,7 +98,9 @@ object LogManager {
     fun d(tag: String, message: String, marker: String = TraceConstants.EXPECTED) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.DEBUG)) {
-            safeLogcat { Log.d(tag, "$marker $message") }
+            safeLogcat {
+                Log.d(tag, "$marker $message")
+            }
         }
     }
 
@@ -114,7 +116,9 @@ object LogManager {
     fun i(tag: String, message: String, marker: String = TraceConstants.EXPECTED) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.INFO)) {
-            safeLogcat { Log.i(tag, "$marker $message") }
+            safeLogcat {
+                Log.i(tag, "$marker $message")
+            }
         }
     }
 
@@ -130,7 +134,9 @@ object LogManager {
     fun w(tag: String, message: String, marker: String = TraceConstants.BRANCH_ALT) {
         BreadcrumbManager.addBreadcrumb(marker, message)
         if (isLoggable(tag, Log.WARN)) {
-            safeLogcat { Log.w(tag, "$marker $message") }
+            safeLogcat {
+                Log.w(tag, "$marker $message")
+            }
         }
     }
 
@@ -192,7 +198,9 @@ object LogManager {
         BreadcrumbManager.addBreadcrumb(marker, fullMsg)
 
         if (isLoggable(tag, Log.ERROR)) {
-            safeLogcat { Log.e(tag, "$marker $fullMsg", throwable) }
+            safeLogcat {
+                Log.e(tag, "$marker $fullMsg", throwable)
+            }
         }
     }
 
@@ -208,7 +216,9 @@ object LogManager {
     fun u(tag: String, message: String) {
         BreadcrumbManager.addBreadcrumb(TraceConstants.UNEXPECTED, message)
         if (isLoggable(tag, Log.ERROR)) {
-            safeLogcat { Log.e(tag, "${TraceConstants.UNEXPECTED} $message") }
+            safeLogcat {
+                Log.e(tag, "${TraceConstants.UNEXPECTED} $message")
+            }
         }
     }
 }

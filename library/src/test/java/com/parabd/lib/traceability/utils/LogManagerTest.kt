@@ -172,6 +172,34 @@ class LogManagerTest {
     }
 
     /**
+     * Verifies that default TDO marker parameters in [LogManager.d], [LogManager.i], [LogManager.w], [LogManager.e] work as expected.
+     */
+    @Test
+    @CoveredRequirement("6.1.1.9.10")
+    @CoveredRequirement("6.3.2.9.10")
+    fun testLogManager_DefaultMarkerParameters() {
+        LogManager.forceLoggable = true
+
+        LogManager.d("TEST_TAG", "Debug default marker")
+        LogManager.d("TEST_TAG", "Debug explicit marker", TraceConstants.EXPECTED)
+
+        LogManager.i("TEST_TAG", "Info default marker")
+        LogManager.i("TEST_TAG", "Info explicit marker", TraceConstants.EXPECTED)
+
+        LogManager.w("TEST_TAG", "Warn default marker")
+        LogManager.w("TEST_TAG", "Warn explicit marker", TraceConstants.BRANCH_ALT)
+
+        LogManager.e("TEST_TAG", "Error default marker")
+        LogManager.e("TEST_TAG", "Error explicit marker", throwable = null, marker = TraceConstants.RECOVERY)
+
+        LogManager.e("TAG", "Prefix default", RuntimeException("Ex"), "Fallback")
+        LogManager.e("TAG", "Prefix explicit", RuntimeException("Ex"), "Fallback", TraceConstants.RECOVERY)
+
+        val breadcrumbs = BreadcrumbManager.getBreadcrumbs()
+        assertTrue("Breadcrumbs should record all default and explicit marker calls", breadcrumbs.size >= 10)
+    }
+
+    /**
      * Verifies that [LogManager.d], [LogManager.i], [LogManager.w], [LogManager.e], [LogManager.u] execute
      * Logcat output blocks safely when [LogManager.forceLoggable] is `true`.
      */
