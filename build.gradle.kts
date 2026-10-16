@@ -12,22 +12,32 @@ val localProperties = Properties().apply {
         localFile.inputStream().use { load(it) }
     }
 }
+val sonarToken: String? = localProperties.getProperty("sonar.token") ?: System.getenv("SONAR_TOKEN")
 
 sonarqube {
     properties {
+        property("sonar.projectKey", "brunolambinbd-hue_TraceabilityLib")
+        property("sonar.organization", "brunolambinbd-hue")
         property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.organization", localProperties.getProperty("sonar.organization") ?: "brunolambinbd-hue")
-        property("sonar.projectKey", localProperties.getProperty("sonar.projectKey") ?: "brunolambinbd-hue_TraceabilityLib")
+        property("sonar.scanner.skipJreProvisioning", "true")
+
+        sonarToken?.let { property("sonar.token", it) }
+
         property("sonar.projectName", "TraceabilityLib")
         property("sonar.coverage.jacoco.xmlReportPaths", "${project.rootDir}/library/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
         property("sonar.sources", "library/src/main/java")
         property("sonar.tests", "library/src/test/java")
         property("sonar.java.binaries", "library/build/tmp/kotlin-classes/debug")
+    }
+}
 
-        val token = System.getenv("SONAR_TOKEN") ?: localProperties.getProperty("sonar.token")
-        if (token != null && token.isNotBlank()) {
-            property("sonar.token", token)
-        }
+tasks.register("runSonarAnalysis") {
+    group = "Reporting"
+    description = "Exécute les tests (Couverture JaCoCo) et télécharge le rapport vers SonarCloud."
+    dependsOn(":library:jacocoTestReport")
+    finalizedBy("sonar")
+    doLast {
+        println("\n🚀 CYCLE SONAR : Rapports générés. Lancement de l'upload vers SonarCloud...")
     }
 }
 
